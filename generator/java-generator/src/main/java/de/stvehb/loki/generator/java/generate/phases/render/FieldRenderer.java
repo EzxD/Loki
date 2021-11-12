@@ -15,8 +15,10 @@ public class FieldRenderer {
 		if (field.getMapValueType() != null) content += "Map<";
 		if (field.isArray() && useListForArray) content += "List<";
 
-		content += field.getType().getName();
-		context.getDebuggingStore().getLineStore().add("Render: Field type -> " + field.getType().getName());
+		if (field.getType() != null) {
+			content += field.getType().getName();
+			context.getDebuggingStore().getLineStore().add("Render: Field type -> " + field.getType().getName());
+		}
 
 		if (field.getMapValueType() != null) {
 			content +=", ";
