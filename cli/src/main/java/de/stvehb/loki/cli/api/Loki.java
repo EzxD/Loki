@@ -1,6 +1,10 @@
 package de.stvehb.loki.cli.api;
 
+import de.stvehb.loki.core.ast.Author;
 import de.stvehb.loki.core.ast.Project;
+import de.stvehb.loki.core.ast.ProjectInfo;
+import de.stvehb.loki.core.ast.source.BuiltInType;
+import de.stvehb.loki.core.ast.source.Field;
 import de.stvehb.loki.core.ast.source.Model;
 import de.stvehb.loki.core.ast.source.Type;
 import de.stvehb.loki.core.generated.apidoc.Service;
@@ -19,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -171,8 +176,30 @@ public class Loki {
 	 */
 	@SneakyThrows
 	private static void regenerateApiBuilderModels() {
-		Service service = Loki.loadApiBuilderService(new File("./apibuilder.json").toPath());
-		Project project = convertApiBuilderToAST(service);
+		/*
+		type Product {
+			id: ID!
+		}
+		 */
+
+		Project project = new Project();
+		project.setInfo(new ProjectInfo("Test", "1.0", "dev.askrella.product.model", new Author("Askrella", "steve@askrella.de", new String[]{"Maintainer", "Developer"})));
+		Model productModel = new Model();
+		productModel.setName("Product");
+		Field field = new Field(
+			List.of(),
+			new BuiltInType("String"),
+			false,
+			null,
+			"id",
+			"The product id"
+		);
+		productModel.setFields(List.of(field));
+
+		project.setEnums(List.of());
+		project.setModels(List.of(
+			productModel
+		));
 
 		Context context = new Context(
 			project,
