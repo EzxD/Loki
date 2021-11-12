@@ -1,11 +1,7 @@
 package de.stvehb.loki.cli.api;
 
-import de.stvehb.loki.core.ast.Author;
+import de.stvehb.loki.core.ast.CompilerOption;
 import de.stvehb.loki.core.ast.Project;
-import de.stvehb.loki.core.ast.ProjectInfo;
-import de.stvehb.loki.core.ast.source.BuiltInType;
-import de.stvehb.loki.core.ast.source.Field;
-import de.stvehb.loki.core.ast.source.Model;
 import de.stvehb.loki.core.ast.source.Type;
 import de.stvehb.loki.core.generated.apidoc.Service;
 import de.stvehb.loki.core.option.DebugOptions;
@@ -14,17 +10,14 @@ import de.stvehb.loki.core.util.ModelUtil;
 import de.stvehb.loki.generator.java.generate.JavaGenerator;
 import de.stvehb.loki.parser.ASTGenerator;
 import de.stvehb.loki.parser.ApidocParser;
-import de.stvehb.loki.generator.java.generate.phases.*;
 import de.stvehb.loki.parser.LokiParser;
+import de.stvehb.loki.parser.GraphQLParser;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class is an API for loading and processing Loki related formats and data.
@@ -176,35 +169,22 @@ public class Loki {
 	 */
 	@SneakyThrows
 	private static void regenerateApiBuilderModels() {
-		/*
-		type Product {
-			id: ID!
-		}
-		 */
-
-		Project project = new Project();
-		project.setInfo(new ProjectInfo("Test", "1.0", "dev.askrella.product.model", new Author("Askrella", "steve@askrella.de", new String[]{"Maintainer", "Developer"})));
-		Model productModel = new Model();
-		productModel.setName("Product");
-		Field field = new Field(
-			List.of(),
-			new BuiltInType("String"),
-			false,
-			null,
-			"id",
-			"The product id"
-		);
-		productModel.setFields(List.of(field));
-
-		project.setEnums(List.of());
-		project.setModels(List.of(
-			productModel
-		));
-
 		Context context = new Context(
-			project,
+			null,
 			new DebugOptions(true)
 		);
+
+		Project project = GraphQLParser.parse(context, "");
+		context.setProject(project);
+
+
+		GraphQLParser.getNAME_TO_TYPE().forEach((name, type) -> {
+			context.getTypes().add(type);
+		});
+
+		context.getProject().getCompilerOptions().add(new CompilerOption(
+			"java", "useListsForArrays", "true"
+		));
 
 		// Override namespace
 		String namespace = "de.stvehb.loki.core.generated.apidoc";
